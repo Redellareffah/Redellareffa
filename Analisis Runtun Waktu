@@ -1,0 +1,59 @@
+#Redella Reffa Herdianti
+#22106010073
+#Analisis Runtun Waktu B
+
+setwd("C:/Users/USER/Documents")
+getwd()
+
+loan.data = read.csv("loan_data.CSV", header = TRUE, dec = ",")
+
+plot(loan.data[,2],type="o",pch=16,cex=.5,xlab='Week',ylab='Loan
+Applications')
+
+par(mfrow=c(1,2),oma=c(0,0,0,0))
+
+acf(loan.data[,2],lag.max=25,type="correlation",main="ACF for the Number \nof Loan Applications")
+
+acf(loan.data[,2], lag.max=25,type="partial",main="PACF for the Number \nof Loan Applications")
+
+loan.fit.ar2<-arima(loan.data[,2],order=c(2, 0, 0))
+loan.fit.ar2
+
+
+res.loan.ar2<-as.vector(residuals(loan.fit.ar2))
+res.loan.ar2
+#to obtain the fitted values we use the function fitted() from
+#the forecast package
+install.packages("forecast")
+library(forecast)
+fit.loan.ar2<-as.vector(fitted(loan.fit.ar2))
+fit.loan.ar2
+Box.test(res.loan.ar2,lag=48,fitdf=3,type="Ljung")
+
+
+#ACF and PACF of the Residuals
+par(mfrow=c(1,2),oma=c(0,0,0,0))
+
+acf(res.loan.ar2,lag.max=25,type="correlation",main="ACF of the
+Residuals \nof AR(2) Model")
+acf(res.loan.ar2, lag.max=25,type="partial",main="PACF of the
+Residuals \nof AR(2) Model")
+
+#4-in-1 plot of the residuals
+par(mfrow=c(2,2),oma=c(0,0,0,0))
+qqnorm(res.loan.ar2,datax=TRUE,pch=16,xlab='Residual',main='')
+qqline(res.loan.ar2,datax=TRUE)
+plot(fit.loan.ar2,res.loan.ar2,pch=16, xlab='Fitted Value',
+     ylab='Residual')
+abline(h=0)
+hist(res.loan.ar2,col="gray",xlab='Residual',main='')
+plot(res.loan.ar2,type="l",xlab='Observation Order',
+     ylab='Residual')
+points(res.loan.ar2,pch=16,cex=.5)
+abline(h=0)
+
+plot(loan.data[,2],type="p",pch=16,cex=.5,xlab='Week',ylab='Loan
+Applications')
+lines(fit.loan.ar2)
+legend(95,88,c("y(t)","yhat(t)"), pch=c(16, NA),lwd=c(NA,.5),
+       cex=.55)
